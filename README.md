@@ -9,4 +9,4 @@ of [libdatachannel](https://github.com/paullouisageneau/libdatachannel) based on
 
 # Open Source
 
-`kotlin-webrtc` is open source under [Apache-2.0](LICENSE)
+`webrtc-kotlin` is open source under [Apache-2.0](LICENSE)
