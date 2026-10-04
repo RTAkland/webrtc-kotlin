@@ -5,7 +5,7 @@
  */
 
 
-@file:OptIn(ExperimentalForeignApi::class, NativeRuntimeApi::class)
+@file:OptIn(ExperimentalForeignApi::class, NativeRuntimeApi::class, UnsafeNumber::class)
 
 package benchmark
 

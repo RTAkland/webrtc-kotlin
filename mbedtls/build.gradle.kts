@@ -1,12 +1,9 @@
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
-repositories {
-    mavenLocal()
-}
-
 kotlin {
     linuxX64()
     linuxArm64()
+    mingwX64()
 
     explicitApi()
     withSourcesJar()

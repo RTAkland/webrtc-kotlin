@@ -22,11 +22,12 @@ extern "C" {
 #define RTC_C_EXPORT
 #else // dynamic library
 #ifdef _WIN32
-#ifdef RTC_EXPORTS
-#define RTC_C_EXPORT __declspec(dllexport) // building the library
-#else
-#define RTC_C_EXPORT __declspec(dllimport) // using the library
-#endif
+#define RTC_C_EXPORT
+// #ifdef RTC_EXPORTS
+// #define RTC_C_EXPORT __declspec(dllexport) // building the library
+// #else
+// #define RTC_C_EXPORT __declspec(dllimport) // using the library
+// #endif
 #else // not WIN32
 #define RTC_C_EXPORT
 #endif
