@@ -13,7 +13,7 @@ This guide is about how to use webrtc-kotlin.
 |---------|:---:|:-----:|
 | Linux   | ✔  |  ✔   |
 | macOS   |  -  |   -   |
-| Windows |  -  |   -   |
+| Windows | ✔  |   -   |
 
 # Dependencies
 
