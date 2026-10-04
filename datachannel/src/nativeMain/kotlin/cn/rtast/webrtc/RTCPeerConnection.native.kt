@@ -9,6 +9,7 @@
 package cn.rtast.webrtc
 
 import cn.rtast.webrtc.configuration.*
+import cn.rtast.webrtc.internal.NativePeerConnectionEvent
 import cn.rtast.webrtc.state.*
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized

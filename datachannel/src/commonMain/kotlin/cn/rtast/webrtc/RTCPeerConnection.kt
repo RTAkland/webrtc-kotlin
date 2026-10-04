@@ -53,12 +53,3 @@ public fun RTCPeerConnection.createDataChannel(
     label: String,
     protocol: String,
 ): RTCDataChannel = createDataChannel(label, protocol, rtcDataChannelConfig {})
-
-internal sealed interface NativePeerConnectionEvent {
-    class LocalDescription(val sdp: String, val type: String) : NativePeerConnectionEvent
-    class LocalCandidate(val candidate: String, val mid: String) : NativePeerConnectionEvent
-    class ConnectionState(val state: RTCConnectionState) : NativePeerConnectionEvent
-    class IceState(val state: RTCIceState) : NativePeerConnectionEvent
-    class GatheringState(val state: RTCGatheringState) : NativePeerConnectionEvent
-    class IncomingChannel(val channel: RTCDataChannel) : NativePeerConnectionEvent
-}

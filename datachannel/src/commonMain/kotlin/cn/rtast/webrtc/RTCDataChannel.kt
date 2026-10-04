@@ -34,13 +34,3 @@ public expect class RTCDataChannel {
     public fun setBufferedAmountLowThreshold(threshold: Int): Boolean
 
 }
-
-internal sealed interface NativeDatachannelEvent {
-    object Open : NativeDatachannelEvent
-    object Closing : NativeDatachannelEvent
-    object Closed : NativeDatachannelEvent
-    value class TextMessage(val text: String) : NativeDatachannelEvent
-    value class BinaryMessage(val data: ByteArray) : NativeDatachannelEvent
-    object BufferedLow : NativeDatachannelEvent
-    value class Error(val message: String) : NativeDatachannelEvent
-}

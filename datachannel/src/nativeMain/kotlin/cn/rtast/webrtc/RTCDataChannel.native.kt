@@ -8,6 +8,7 @@
 
 package cn.rtast.webrtc
 
+import cn.rtast.webrtc.internal.NativeDatachannelEvent
 import cn.rtast.webrtc.state.RTCDataChannelState
 import kotlinx.cinterop.*
 import kotlinx.coroutines.CoroutineScope
