@@ -7,14 +7,6 @@ This guide is about how to use webrtc-kotlin.
 > `kotlin-webrtc` is a [libdatachannel](https://github.com/paullouisageneau/libdatachannel) wrapper based on kotlin
 > cinterop, with no media (audio/video) support.
 
-# Supported platforms
-
-|         | x64 | arm64 |
-|---------|:---:|:-----:|
-| Linux   | ✔  |  ✔   |
-| macOS   | ✔  |   -   |
-| Windows | ✔  |   -   |
-
 # Dependencies
 
 ```kotlin
