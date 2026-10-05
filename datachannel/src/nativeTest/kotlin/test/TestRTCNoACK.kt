@@ -76,10 +76,10 @@ class TestRTCNoACK {
     fun testTurnRelayOnly() = runBlocking {
         val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
         val config = rtcConfiguration {
-//            turn(testTurnHost, 80, testTurnUser, testTurnPass, RTCTransport.UDP)
-//            turn(testTurnHost, 443, testTurnUser, testTurnPass, RTCTransport.TCP)
-            turn(testLANTurnHost, 3478, testLANTurnUser, testLANTurnPass, RTCTransport.UDP)
-            turn(testLANTurnHost, 3478, testLANTurnUser, testLANTurnPass, RTCTransport.TCP)
+            turn(testTurnHost, 80, testTurnUser, testTurnPass, RTCTransport.UDP)
+            turn(testTurnHost, 443, testTurnUser, testTurnPass, RTCTransport.TCP)
+//            turn(testLANTurnHost, 3478, testLANTurnUser, testLANTurnPass, RTCTransport.UDP)
+//            turn(testLANTurnHost, 3478, testLANTurnUser, testLANTurnPass, RTCTransport.TCP)
             iceTransportPolicy = RTCIceTransportPolicy.RELAY
             disableAutoNegotiation = true
         }

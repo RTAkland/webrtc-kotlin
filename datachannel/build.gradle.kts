@@ -2,6 +2,7 @@ kotlin {
     linuxX64()
     linuxArm64()
     mingwX64()
+    if (System.getProperty("os.name").startsWith("Mac")) macosArm64()
 
     explicitApi()
     withSourcesJar()
