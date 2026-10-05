@@ -30,3 +30,15 @@ jobs:
           ./gradlew :datachannel:cleanMacosArm64Test :datachannel:macosArm64Test \
             --tests "test.TestRTCNoACK" \
             --stacktrace
+        continue-on-error: true
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macosArm64-test-reports
+          path: |
+            **/build/reports/tests/**
+            **/build/test-results/**
+          if-no-files-found: warn
+          retention-days: 14

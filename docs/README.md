@@ -12,7 +12,7 @@ This guide is about how to use webrtc-kotlin.
 |         | x64 | arm64 |
 |---------|:---:|:-----:|
 | Linux   | ✔  |  ✔   |
-| macOS   |  -  |   -   |
+| macOS   | ✔  |   -   |
 | Windows | ✔  |   -   |
 
 # Dependencies
