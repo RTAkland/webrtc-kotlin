@@ -20,8 +20,5 @@ kotlin {
         commonTest.dependencies {}
     }
 
-    compilerOptions.freeCompilerArgs.addAll(
-        "-Xexpect-actual-classes",
-        "-Xcompanion-blocks-and-extensions"  // 2.5.0-Beta1
-    )
+    compilerOptions.freeCompilerArgs.addAll("-Xexpect-actual-classes")
 }
