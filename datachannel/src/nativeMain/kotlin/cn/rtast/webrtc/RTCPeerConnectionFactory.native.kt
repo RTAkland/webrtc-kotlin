@@ -37,7 +37,7 @@ public actual class RTCPeerConnectionFactory actual constructor(logLevel: RTCLog
         initialized = false
     }
 
-    companion {
+    public actual companion object {
         internal actual var errorHandler: ((RTCException) -> Unit)? = null
         private var initialized = false
     }
@@ -51,4 +51,5 @@ public actual class RTCPeerConnectionFactory actual constructor(logLevel: RTCLog
     }
 }
 
-public actual companion val RTCPeerConnectionFactory.VERSION: String = LIBDATACHANNEL_VERSION
+public actual val RTCPeerConnectionFactory.Companion.VERSION: String
+    get() = LIBDATACHANNEL_VERSION

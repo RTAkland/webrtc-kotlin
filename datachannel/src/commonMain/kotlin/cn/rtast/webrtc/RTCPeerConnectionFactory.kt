@@ -28,9 +28,9 @@ public expect class RTCPeerConnectionFactory(logLevel: RTCLogLevel) {
 
     public fun close()
 
-    companion {
+    public companion object {
         internal var errorHandler: ((RTCException) -> Unit)?
     }
 }
 
-public expect companion val RTCPeerConnectionFactory.VERSION: String
+public expect val RTCPeerConnectionFactory.Companion.VERSION: String

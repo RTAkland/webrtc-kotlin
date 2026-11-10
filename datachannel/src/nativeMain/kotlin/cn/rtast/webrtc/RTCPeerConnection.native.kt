@@ -333,7 +333,7 @@ public actual class RTCPeerConnection internal actual constructor(
         }
     }
 
-    companion {
+    public companion object {
         private val localDescriptionCallback =
             staticCFunction<Int, CPointer<ByteVar>?, CPointer<ByteVar>?, COpaquePointer?, Unit> { _, sdp, type, user ->
                 val self = user?.asStableRef<RTCPeerConnection>()?.get() ?: return@staticCFunction

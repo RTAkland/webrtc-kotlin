@@ -37,7 +37,7 @@ public data class RTCIceServer(
         }
     }
 
-    companion {
+    public companion object {
         private const val HEX = "0123456789ABCDEF"
         private fun percentEncode(s: String): String {
             val sb = StringBuilder()

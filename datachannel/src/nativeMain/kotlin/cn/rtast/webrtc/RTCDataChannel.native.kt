@@ -178,7 +178,7 @@ public actual class RTCDataChannel internal constructor(
         public actual val bytes: SharedFlow<ByteArray> = _binaryMessages.asSharedFlow()
     }
 
-    companion {
+    public companion object {
         private val openCallback = staticCFunction<Int, COpaquePointer?, Unit> { _, user ->
             val self = user?.asStableRef<RTCDataChannel>()?.get() ?: return@staticCFunction
             self.nativeEvents.trySend(NativeDatachannelEvent.Open)

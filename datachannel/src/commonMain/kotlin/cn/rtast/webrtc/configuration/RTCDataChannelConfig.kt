@@ -35,7 +35,7 @@ public class RTCDataChannelConfig internal constructor(
         }
     }
 
-    companion {
+    public companion object {
         /**
          * Default reliable, ordered channel
          */
