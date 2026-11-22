@@ -33,7 +33,7 @@ internal sealed interface NativeDatachannelEvent {
 
     object BufferedLow : NativeDatachannelEvent
 
-    value class Error(
+    data class Error(
         val message: String,
     ) : NativeDatachannelEvent
 }
