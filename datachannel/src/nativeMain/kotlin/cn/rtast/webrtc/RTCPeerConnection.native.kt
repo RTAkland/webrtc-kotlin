@@ -5,6 +5,7 @@
  */
 
 @file:OptIn(ExperimentalForeignApi::class)
+@file:Suppress("ktlint:standard:no-wildcard-imports")
 
 package cn.rtast.webrtc
 
@@ -223,23 +224,18 @@ public actual class RTCPeerConnection internal actual constructor(
     public actual fun addRemoteCandidate(candidate: RTCCandidate) {
         val handle = pc
         if (handle < 0) return
-        val toFlush: List<RTCCandidate> =
+        val applyNow =
             synchronized(negotiationLock) {
-                if (!remoteDescriptionSet) {
-                    pendingCandidates += candidate
-                    null
+                if (remoteDescriptionSet) {
+                    true
                 } else {
-                    listOf(candidate)
+                    pendingCandidates += candidate
+                    false
                 }
-            } ?: return
-        memScoped {
-            toFlush.forEach { (val candidate1 = candidate, val mid) ->
-                rtcAddRemoteCandidate(
-                    handle,
-                    candidate1.cstr.ptr,
-                    mid.cstr.ptr
-                )
             }
+        if (!applyNow) return
+        memScoped {
+            rtcAddRemoteCandidate(handle, candidate.candidate.cstr.ptr, candidate.mid.cstr.ptr)
         }
     }
 
@@ -287,7 +283,16 @@ public actual class RTCPeerConnection internal actual constructor(
                 rtcCreateDataChannelEx(handle, label.cstr.ptr, init.ptr)
             }
         check(dcId >= 0) { "Failed to create DataChannel" }
-        val ch = RTCDataChannel(dcId, label, this, pcScope)
+        val ch =
+            RTCDataChannel(
+                dcId,
+                label,
+                this,
+                pcScope,
+                config.maxBufferedAmount,
+                config.receiveBufferCapacity,
+                config.maxReceiveMessageSize,
+            )
         putChannel(dcId, ch)
         return ch
     }
@@ -348,7 +353,6 @@ public actual class RTCPeerConnection internal actual constructor(
                         val added = synchronized(negotiationLock) { seenCandidates.add(key) }
                         if (!added) continue
                         _localCandidates.emit(RTCCandidate(e.candidate, e.mid))
-                        querySelectedCandidatePair()?.let { _selectedCandidatePair.value = it }
                     }
 
                     is NativePeerConnectionEvent.ConnectionState -> {

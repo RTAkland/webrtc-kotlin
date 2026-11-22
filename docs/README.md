@@ -141,12 +141,44 @@ initiatorDataChannel.state.filter { it == RTCDataChannelState.Open }.onEach {
     initiatorDataChannel.send("World")
     initiatorDataChannel.send(byteArrayOf(0x04, 0x05, 0x06))
 }.launchIn(scope)
-initiatorDataChannel.createOffer()
+initiator.createOffer()
 
 // ----------------------- Do clean up -------------------- //
 
 initiatorDataChannel.close()
 initiator.close()
 responder.close()
-factory.cleanup()
+factory.close()
 ```
+
+## Backpressure and memory limits
+
+`send` returns `false` when the channel is closing or when the outgoing buffer already
+reached `maxBufferedAmount` (default 16 MiB). For large transfers prefer `sendAwait`,
+which suspends until there is room instead of dropping data:
+
+```kotlin
+val dc = initiator.createDataChannel("file", rtcDataChannelConfig {
+    // Stop accepting synchronous send() calls above 8 MiB buffered.
+    maxBufferedAmount = 8L * 1024 * 1024
+
+    // Buffer at most 8 received messages per collector; 0 applies immediate backpressure.
+    receiveBufferCapacity = 8
+
+    // Reject a single incoming message larger than 4 MiB.
+    maxReceiveMessageSize = 4 * 1024 * 1024
+})
+
+val chunk = ByteArray(128 * 1024)
+repeat(count) {
+    check(dc.sendAwait(chunk)) { "channel closed while sending" }
+}
+```
+
+- `maxBufferedAmount` bounds the native outgoing queue. Use `sendAwait` for lossless
+  streaming; use `send` plus the boolean result for a non-blocking fast path.
+- `receiveBufferCapacity` and the peer connection's `maxMessageSize` together bound
+  per-channel receive memory.
+- `maxReceiveMessageSize` is a hard safety limit for a single message; exceeding it
+  closes the channel and reports a fatal error.
+- Check `send`/`sendAwait` results: `false` means nothing was queued.

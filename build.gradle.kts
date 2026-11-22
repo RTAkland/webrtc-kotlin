@@ -32,6 +32,7 @@ subprojects {
             pom {
                 name = "webrtc-kotlin"
                 description = "Kotlin Native WebRTC libdatachannel wrapper"
+                url.set("https://repo.rtast.cn/RTAkland/webrtc-kotlin")
                 licenses {
                     license {
                         name = "Apache-2.0"
