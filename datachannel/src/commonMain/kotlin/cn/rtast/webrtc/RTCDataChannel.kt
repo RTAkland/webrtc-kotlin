@@ -29,8 +29,10 @@ public expect class RTCDataChannel {
     }
 
     public fun send(text: String): Boolean
-    public fun send(data: ByteArray): Boolean
-    public fun close(): Boolean
-    public fun setBufferedAmountLowThreshold(threshold: Int): Boolean
 
+    public fun send(data: ByteArray): Boolean
+
+    public fun close(): Boolean
+
+    public fun setBufferedAmountLowThreshold(threshold: Int): Boolean
 }

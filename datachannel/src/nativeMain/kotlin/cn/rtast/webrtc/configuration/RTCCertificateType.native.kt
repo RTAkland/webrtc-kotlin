@@ -6,8 +6,9 @@
 
 package cn.rtast.webrtc.configuration
 
-internal fun RTCCertificateType.toNative(): UInt = when (this) {
-    RTCCertificateType.DEFAULT -> 0u
-    RTCCertificateType.ECDSA -> 1u
-    RTCCertificateType.RSA -> 2u
-}
+internal fun RTCCertificateType.toNative(): UInt =
+    when (this) {
+        RTCCertificateType.DEFAULT -> 0u
+        RTCCertificateType.ECDSA -> 1u
+        RTCCertificateType.RSA -> 2u
+    }

@@ -4,7 +4,6 @@
  * Date: 2026-10-01
  */
 
-
 package cn.rtast.webrtc.configuration
 
 /**
@@ -39,7 +38,6 @@ public class RTCDataChannelConfig internal constructor(
         /**
          * Default reliable, ordered channel
          */
-        @Suppress("PropertyName")
         public val Reliable: RTCDataChannelConfig = RTCDataChannelConfig(true, null, null, "", false)
     }
 }
@@ -83,7 +81,12 @@ public class RTCDataChannelConfigBuilder {
         ordered = false
     }
 
-    internal fun build(): RTCDataChannelConfig = RTCDataChannelConfig(
-        ordered, maxRetransmits, maxPacketLifeTime, protocol, negotiated
-    )
+    internal fun build(): RTCDataChannelConfig =
+        RTCDataChannelConfig(
+            ordered,
+            maxRetransmits,
+            maxPacketLifeTime,
+            protocol,
+            negotiated,
+        )
 }

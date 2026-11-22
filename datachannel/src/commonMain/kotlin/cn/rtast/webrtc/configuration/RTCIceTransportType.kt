@@ -4,7 +4,6 @@
  * Date: 2026-09-30
  */
 
-
 package cn.rtast.webrtc.configuration
 
 /**
@@ -30,5 +29,5 @@ public enum class RTCIceTransportType {
     /**
      * Unknown transport type
      */
-    UNKNOWN
+    UNKNOWN,
 }

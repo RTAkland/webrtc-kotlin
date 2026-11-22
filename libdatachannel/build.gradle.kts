@@ -11,9 +11,11 @@ kotlin {
 
     targets.withType<KotlinNativeTarget>().configureEach {
         compilations["main"].cinterops {
-            if (this@configureEach.name == "mingwX64") create("throw_bad_array_new_length") {
-                definitionFile.set(file("src/cinterop/throw_bad_array_new_length.def"))
-                extraOpts("-libraryPath", file("src/cinterop/libs/${this@configureEach.name}").absolutePath)
+            if (this@configureEach.name == "mingwX64") {
+                create("throw_bad_array_new_length") {
+                    definitionFile.set(file("src/cinterop/throw_bad_array_new_length.def"))
+                    extraOpts("-libraryPath", file("src/cinterop/libs/${this@configureEach.name}").absolutePath)
+                }
             }
 
             create("libdatachannel") {

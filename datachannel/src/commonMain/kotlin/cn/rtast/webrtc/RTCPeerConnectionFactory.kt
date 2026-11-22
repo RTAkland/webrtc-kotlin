@@ -4,7 +4,6 @@
  * Date: 2026-09-28
  */
 
-
 package cn.rtast.webrtc
 
 import cn.rtast.webrtc.configuration.RTCConfiguration
@@ -13,7 +12,9 @@ import cn.rtast.webrtc.configuration.RTCLogLevel
 import cn.rtast.webrtc.configuration.rtcConfiguration
 import kotlinx.coroutines.CoroutineScope
 
-public expect class RTCPeerConnectionFactory(logLevel: RTCLogLevel) {
+public expect class RTCPeerConnectionFactory(
+    logLevel: RTCLogLevel,
+) {
     public fun createPeerConnection(
         scope: CoroutineScope,
         config: RTCConfiguration = rtcConfiguration {},

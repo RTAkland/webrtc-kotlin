@@ -4,9 +4,11 @@
  * Date: 2026-10-01
  */
 
-
 package cn.rtast.webrtc.state
 
 public enum class RTCDataChannelState {
-    Connecting, Open, Closing, Closed,
+    Connecting,
+    Open,
+    Closing,
+    Closed,
 }

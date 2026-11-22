@@ -4,6 +4,8 @@
  * Date: 2026-09-30
  */
 
+@file:Suppress("ktlint:standard:no-wildcard-imports", "unused")
+
 package test
 
 import cn.rtast.webrtc.RTCPeerConnectionFactory
@@ -36,62 +38,72 @@ class TestRTCNoACK {
     }
 
     @Test
-    fun testStunOnly() = runBlocking {
-        factory.onError {
-            println(it)
+    fun testStunOnly() =
+        runBlocking {
+            factory.onError {
+                println(it)
+            }
+            val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+            val config =
+                rtcConfiguration {
+                    stun(publicStun)
+                    iceTransportPolicy = RTCIceTransportPolicy.ALL
+                    disableAutoNegotiation = true
+                }
+            try {
+                runScenario(scope, "STUN-only", config)
+            } finally {
+                scope.cancel()
+                factory.close()
+            }
         }
-        val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-        val config = rtcConfiguration {
-            stun(publicStun)
-            iceTransportPolicy = RTCIceTransportPolicy.ALL
-            disableAutoNegotiation = true
-        }
-        try {
-            runScenario(scope, "STUN-only", config)
-        } finally {
-            scope.cancel()
-            factory.close()
-        }
-    }
 
     @Test
-    fun testStunAndTurn() = runBlocking {
-        val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-        val config = rtcConfiguration {
-            stun(publicStun)
-            turn(testTurnHost, 80, testTurnUser, testTurnPass, RTCTransport.UDP)
-            turn(testTurnHost, 80, testTurnUser, testTurnPass, RTCTransport.TCP)
-            iceTransportPolicy = RTCIceTransportPolicy.ALL
-            disableAutoNegotiation = true
+    fun testStunAndTurn() =
+        runBlocking {
+            val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+            val config =
+                rtcConfiguration {
+                    stun(publicStun)
+                    turn(testTurnHost, 80, testTurnUser, testTurnPass, RTCTransport.UDP)
+                    turn(testTurnHost, 80, testTurnUser, testTurnPass, RTCTransport.TCP)
+                    iceTransportPolicy = RTCIceTransportPolicy.ALL
+                    disableAutoNegotiation = true
+                }
+            try {
+                runScenario(scope, "STUN+TURN(ALL)", config)
+            } finally {
+                scope.cancel()
+                factory.close()
+            }
         }
-        try {
-            runScenario(scope, "STUN+TURN(ALL)", config)
-        } finally {
-            scope.cancel()
-            factory.close()
-        }
-    }
 
     @Test
-    fun testTurnRelayOnly() = runBlocking {
-        val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-        val config = rtcConfiguration {
-            turn(testTurnHost, 80, testTurnUser, testTurnPass, RTCTransport.UDP)
-            turn(testTurnHost, 443, testTurnUser, testTurnPass, RTCTransport.TCP)
+    fun testTurnRelayOnly() =
+        runBlocking {
+            val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+            val config =
+                rtcConfiguration {
+                    turn(testTurnHost, 80, testTurnUser, testTurnPass, RTCTransport.UDP)
+                    turn(testTurnHost, 443, testTurnUser, testTurnPass, RTCTransport.TCP)
 //            turn(testLANTurnHost, 3478, testLANTurnUser, testLANTurnPass, RTCTransport.UDP)
 //            turn(testLANTurnHost, 3478, testLANTurnUser, testLANTurnPass, RTCTransport.TCP)
-            iceTransportPolicy = RTCIceTransportPolicy.RELAY
-            disableAutoNegotiation = true
+                    iceTransportPolicy = RTCIceTransportPolicy.RELAY
+                    disableAutoNegotiation = true
+                }
+            try {
+                runScenario(scope, "TURN-RELAY", config)
+            } finally {
+                scope.cancel()
+                factory.close()
+            }
         }
-        try {
-            runScenario(scope, "TURN-RELAY", config)
-        } finally {
-            scope.cancel()
-            factory.close()
-        }
-    }
 
-    private suspend fun runScenario(scope: CoroutineScope, label: String, config: RTCConfiguration) {
+    private suspend fun runScenario(
+        scope: CoroutineScope,
+        label: String,
+        config: RTCConfiguration,
+    ) {
         val sigA = LoopbackSignaling()
         val sigB = LoopbackSignaling()
         sigA.peer = sigB
@@ -105,44 +117,54 @@ class TestRTCNoACK {
         pcA.localDescriptions.onEach { sigA.sendSdp(it) }.launchIn(scope)
         pcA.localCandidates.onEach { sigA.sendCandidate(it) }.launchIn(scope)
         pcA.connectionState.onEach { println("[$label][A] state = $it") }.launchIn(scope)
-        sigA.remoteDescriptions.onEach { pcA.setRemoteDescription(it.sdp, it.type) }.launchIn(scope)
+        sigA.remoteDescriptions.onEach { (val type, val sdp) -> pcA.setRemoteDescription(sdp, type) }.launchIn(scope)
         sigA.remoteCandidates.onEach { pcA.addRemoteCandidate(it) }.launchIn(scope)
         pcB.localDescriptions.onEach { sigB.sendSdp(it) }.launchIn(scope)
         pcB.localCandidates.onEach { sigB.sendCandidate(it) }.launchIn(scope)
         pcB.connectionState.onEach { println("[$label][B] state = $it") }.launchIn(scope)
-        sigB.remoteDescriptions.onEach { sd ->
-            pcB.setRemoteDescription(sd.sdp, sd.type)
-            pcB.createAnswer()
-        }.launchIn(scope)
-
-        sigB.remoteCandidates.onEach { pcB.addRemoteCandidate(it) }.launchIn(scope)
-        pcB.incomingDataChannels.onEach { dc ->
-            println(
-                "[$label][B] incoming channel: ${dc.label}, " +
-                        "mode = ${pcB.selectedIceTransportType()}"
-            )
-            dc.messages.text.onEach { msg ->
-                println("[$label][B] recv text: $msg")
-                gotAtB.complete(Unit)
+        sigB.remoteDescriptions
+            .onEach { (val type, val sdp) ->
+                pcB.setRemoteDescription(sdp, type)
+                pcB.createAnswer()
             }.launchIn(scope)
 
-            dc.state.filter { it == RTCDataChannelState.Open }
-                .onEach {
-                    delay(500.milliseconds)
-                    dc.send("hello from B")
-                }.launchIn(scope)
-        }.launchIn(scope)
+        sigB.remoteCandidates.onEach { pcB.addRemoteCandidate(it) }.launchIn(scope)
+        pcB.incomingDataChannels
+            .onEach { dc ->
+                println(
+                    "[$label][B] incoming channel: ${dc.label}, " +
+                            "mode = ${pcB.selectedIceTransportType()}",
+                )
+                dc.messages.text
+                    .onEach { msg ->
+                        println("[$label][B] recv text: $msg")
+                        gotAtB.complete(Unit)
+                    }.launchIn(scope)
 
-        val dcA = pcA.createDataChannel("chat", rtcDataChannelConfig {
-            ordered = true
-        })
+                dc.state
+                    .filter { it == RTCDataChannelState.Open }
+                    .onEach {
+                        delay(500.milliseconds)
+                        dc.send("hello from B")
+                    }.launchIn(scope)
+            }.launchIn(scope)
 
-        dcA.messages.text.onEach { msg ->
-            println("[$label][A] recv text: $msg")
-            gotAtA.complete(Unit)
-        }.launchIn(scope)
+        val dcA =
+            pcA.createDataChannel(
+                "chat",
+                rtcDataChannelConfig {
+                    ordered = true
+                },
+            )
 
-        dcA.state.filter { it == RTCDataChannelState.Open }
+        dcA.messages.text
+            .onEach { msg ->
+                println("[$label][A] recv text: $msg")
+                gotAtA.complete(Unit)
+            }.launchIn(scope)
+
+        dcA.state
+            .filter { it == RTCDataChannelState.Open }
             .onEach {
                 delay(500.milliseconds)
                 dcA.send("hello from A")
@@ -151,10 +173,11 @@ class TestRTCNoACK {
         println("[$label] A creating offer")
         pcA.createOffer()
 
-        val ok = withTimeoutOrNull(30.seconds) {
-            awaitAll(gotAtA, gotAtB)
-            true
-        } ?: false
+        val ok =
+            withTimeoutOrNull(30.seconds) {
+                awaitAll(gotAtA, gotAtB)
+                true
+            } ?: false
 
         println(if (ok) "\n[$label]PASS" else "\n[$label]TIMEOUT")
 

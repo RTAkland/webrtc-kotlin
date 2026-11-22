@@ -6,7 +6,6 @@
 
 package cn.rtast.webrtc.configuration
 
-
 public data class RTCConfiguration(
     public val iceServers: List<RTCIceServer>,
     public val iceTransportPolicy: RTCIceTransportPolicy,
@@ -121,18 +120,19 @@ public class RTCConfigurationBuilder {
         iceServers += RTCIceServer(url, null, null)
     }
 
-    internal fun build(): RTCConfiguration = RTCConfiguration(
-        iceServers = iceServers.toList(),
-        iceTransportPolicy = iceTransportPolicy,
-        enableIceTcp = enableIceTcp,
-        enableIceUdpMux = enableIceUdpMux,
-        disableAutoNegotiation = disableAutoNegotiation,
-        bindAddress = bindAddress,
-        proxyServer = proxyServer,
-        portRangeBegin = portRangeBegin,
-        portRangeEnd = portRangeEnd,
-        mtu = mtu,
-        maxMessageSize = maxMessageSize,
-        certificateType = certificateType,
-    )
+    internal fun build(): RTCConfiguration =
+        RTCConfiguration(
+            iceServers = iceServers.toList(),
+            iceTransportPolicy = iceTransportPolicy,
+            enableIceTcp = enableIceTcp,
+            enableIceUdpMux = enableIceUdpMux,
+            disableAutoNegotiation = disableAutoNegotiation,
+            bindAddress = bindAddress,
+            proxyServer = proxyServer,
+            portRangeBegin = portRangeBegin,
+            portRangeEnd = portRangeEnd,
+            mtu = mtu,
+            maxMessageSize = maxMessageSize,
+            certificateType = certificateType,
+        )
 }

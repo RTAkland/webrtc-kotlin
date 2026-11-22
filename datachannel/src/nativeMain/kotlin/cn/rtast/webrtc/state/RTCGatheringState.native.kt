@@ -15,15 +15,17 @@ import libdatachannel.RTC_GATHERING_INPROGRESS
 import libdatachannel.RTC_GATHERING_NEW
 import libdatachannel.rtcGatheringState
 
-internal fun RTCGatheringState.toNative(): rtcGatheringState = when (this) {
-    RTCGatheringState.NEW -> RTC_GATHERING_NEW
-    RTCGatheringState.IN_PROGRESS -> RTC_GATHERING_INPROGRESS
-    RTCGatheringState.COMPLETE -> RTC_GATHERING_COMPLETE
-}
+internal fun RTCGatheringState.toNative(): rtcGatheringState =
+    when (this) {
+        RTCGatheringState.NEW -> RTC_GATHERING_NEW
+        RTCGatheringState.IN_PROGRESS -> RTC_GATHERING_INPROGRESS
+        RTCGatheringState.COMPLETE -> RTC_GATHERING_COMPLETE
+    }
 
-internal fun rtcGatheringState.toRTCGatheringState(): RTCGatheringState = when (this) {
-    RTC_GATHERING_NEW -> RTCGatheringState.NEW
-    RTC_GATHERING_INPROGRESS -> RTCGatheringState.IN_PROGRESS
-    RTC_GATHERING_COMPLETE -> RTCGatheringState.COMPLETE
-    else -> RTCGatheringState.NEW
-}
+internal fun rtcGatheringState.toRTCGatheringState(): RTCGatheringState =
+    when (this) {
+        RTC_GATHERING_NEW -> RTCGatheringState.NEW
+        RTC_GATHERING_INPROGRESS -> RTCGatheringState.IN_PROGRESS
+        RTC_GATHERING_COMPLETE -> RTCGatheringState.COMPLETE
+        else -> RTCGatheringState.NEW
+    }

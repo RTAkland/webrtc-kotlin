@@ -25,7 +25,8 @@ import platform.posix.stderr
 import kotlin.concurrent.Volatile
 
 public actual class RTCPeerConnection internal actual constructor(
-    parentScope: CoroutineScope, iceConfig: RTCConfiguration,
+    parentScope: CoroutineScope,
+    iceConfig: RTCConfiguration,
 ) {
     public actual constructor(scope: CoroutineScope) : this(scope, rtcConfiguration {})
 
@@ -35,10 +36,11 @@ public actual class RTCPeerConnection internal actual constructor(
     @Volatile
     private var selfRef: StableRef<RTCPeerConnection>? = null
     private val lifecycleLock = SynchronizedObject()
-    private val pcScope = CoroutineScope(
-        parentScope.coroutineContext +
-                SupervisorJob(parentScope.coroutineContext[Job])
-    )
+    private val pcScope =
+        CoroutineScope(
+            parentScope.coroutineContext +
+                    SupervisorJob(parentScope.coroutineContext[Job]),
+        )
 
     private val nativeEvents = Channel<NativePeerConnectionEvent>(Channel.UNLIMITED)
     private val channelsLock = SynchronizedObject()
@@ -80,16 +82,18 @@ public actual class RTCPeerConnection internal actual constructor(
         get() {
             val handle = pc
             if (handle < 0) return null
-            val type = memScoped {
-                val bufSize = 64
-                val buf = allocArray<ByteVar>(bufSize)
-                if (rtcGetLocalDescriptionType(handle, buf, bufSize) < 0) null else buf.toKString()
-            } ?: return null
-            val sdp = memScoped {
-                val bufSize = 8192
-                val buf = allocArray<ByteVar>(bufSize)
-                if (rtcGetLocalDescription(handle, buf, bufSize) < 0) "" else buf.toKString()
-            }
+            val type =
+                memScoped {
+                    val bufSize = 64
+                    val buf = allocArray<ByteVar>(bufSize)
+                    if (rtcGetLocalDescriptionType(handle, buf, bufSize) < 0) null else buf.toKString()
+                } ?: return null
+            val sdp =
+                memScoped {
+                    val bufSize = 8192
+                    val buf = allocArray<ByteVar>(bufSize)
+                    if (rtcGetLocalDescription(handle, buf, bufSize) < 0) "" else buf.toKString()
+                }
             if (sdp.isEmpty()) return null
             return RTCSessionDescription(type, sdp)
         }
@@ -98,16 +102,18 @@ public actual class RTCPeerConnection internal actual constructor(
         get() {
             val handle = pc
             if (handle < 0) return null
-            val type = memScoped {
-                val bufSize = 64
-                val buf = allocArray<ByteVar>(bufSize)
-                if (rtcGetRemoteDescriptionType(handle, buf, bufSize) < 0) null else buf.toKString()
-            } ?: return null
-            val sdp = memScoped {
-                val bufSize = 8192
-                val buf = allocArray<ByteVar>(bufSize)
-                if (rtcGetRemoteDescription(handle, buf, bufSize) < 0) "" else buf.toKString()
-            }
+            val type =
+                memScoped {
+                    val bufSize = 64
+                    val buf = allocArray<ByteVar>(bufSize)
+                    if (rtcGetRemoteDescriptionType(handle, buf, bufSize) < 0) null else buf.toKString()
+                } ?: return null
+            val sdp =
+                memScoped {
+                    val bufSize = 8192
+                    val buf = allocArray<ByteVar>(bufSize)
+                    if (rtcGetRemoteDescription(handle, buf, bufSize) < 0) "" else buf.toKString()
+                }
             if (sdp.isEmpty()) return null
             return RTCSessionDescription(type, sdp)
         }
@@ -142,9 +148,9 @@ public actual class RTCPeerConnection internal actual constructor(
     }
 
     public actual fun selectedIceTransportType(): RTCIceTransportType {
-        val pair = _selectedCandidatePair.value ?: return RTCIceTransportType.UNKNOWN
-        val localType = candidateTypeOf(pair.local)
-        val remoteType = candidateTypeOf(pair.remote)
+        (val local, val remote) = _selectedCandidatePair.value ?: return RTCIceTransportType.UNKNOWN
+        val localType = candidateTypeOf(local)
+        val remoteType = candidateTypeOf(remote)
         return when {
             localType == "relay" || remoteType == "relay" -> RTCIceTransportType.RELAY
             localType == "srflx" || remoteType == "srflx" -> RTCIceTransportType.SRFLX
@@ -159,29 +165,30 @@ public actual class RTCPeerConnection internal actual constructor(
         return if (idx >= 0 && idx + 1 < tokens.size) tokens[idx + 1] else null
     }
 
-    private fun createPeerConnection(cfg: RTCConfiguration): Int = memScoped {
-        val c = alloc<rtcConfiguration>()
-        memset(c.ptr, 0, sizeOf<rtcConfiguration>().convert())
-        c.iceTransportPolicy = cfg.iceTransportPolicy.toNative()
-        c.enableIceTcp = cfg.enableIceTcp
-        c.enableIceUdpMux = cfg.enableIceUdpMux
-        c.disableAutoNegotiation = cfg.disableAutoNegotiation
-        c.bindAddress = cfg.bindAddress?.cstr?.ptr
-        c.proxyServer = cfg.proxyServer?.cstr?.ptr
-        c.portRangeBegin = cfg.portRangeBegin.toUShort()
-        c.portRangeEnd = cfg.portRangeEnd.toUShort()
-        c.mtu = cfg.mtu
-        c.maxMessageSize = cfg.maxMessageSize
-        c.certificateType = cfg.certificateType.toNative()
-        if (cfg.iceServers.isNotEmpty()) {
-            val urlPtrs = cfg.iceServers.map { it.toString().cstr.getPointer(this) }
-            val urlArray = allocArray<CPointerVar<ByteVar>>(urlPtrs.size)
-            urlPtrs.forEachIndexed { i, p -> urlArray[i] = p }
-            c.iceServers = urlArray
-            c.iceServersCount = urlPtrs.size
+    private fun createPeerConnection(cfg: RTCConfiguration): Int =
+        memScoped {
+            val c = alloc<rtcConfiguration>()
+            memset(c.ptr, 0, sizeOf<rtcConfiguration>().convert())
+            c.iceTransportPolicy = cfg.iceTransportPolicy.toNative()
+            c.enableIceTcp = cfg.enableIceTcp
+            c.enableIceUdpMux = cfg.enableIceUdpMux
+            c.disableAutoNegotiation = cfg.disableAutoNegotiation
+            c.bindAddress = cfg.bindAddress?.cstr?.ptr
+            c.proxyServer = cfg.proxyServer?.cstr?.ptr
+            c.portRangeBegin = cfg.portRangeBegin.toUShort()
+            c.portRangeEnd = cfg.portRangeEnd.toUShort()
+            c.mtu = cfg.mtu
+            c.maxMessageSize = cfg.maxMessageSize
+            c.certificateType = cfg.certificateType.toNative()
+            if (cfg.iceServers.isNotEmpty()) {
+                val urlPtrs = cfg.iceServers.map { it.toString().cstr.getPointer(this) }
+                val urlArray = allocArray<CPointerVar<ByteVar>>(urlPtrs.size)
+                urlPtrs.forEachIndexed { i, p -> urlArray[i] = p }
+                c.iceServers = urlArray
+                c.iceServersCount = urlPtrs.size
+            }
+            rtcCreatePeerConnection(c.ptr)
         }
-        rtcCreatePeerConnection(c.ptr)
-    }
 
     public actual fun createOffer() {
         val handle = pc
@@ -198,7 +205,10 @@ public actual class RTCPeerConnection internal actual constructor(
         rtcSetLocalDescription(handle, "answer")
     }
 
-    public actual fun setRemoteDescription(sdp: String, type: String) {
+    public actual fun setRemoteDescription(
+        sdp: String,
+        type: String,
+    ) {
         val handle = pc
         if (handle < 0) return
         val r = memScoped { rtcSetRemoteDescription(handle, sdp.cstr.ptr, type.cstr.ptr) }
@@ -213,23 +223,43 @@ public actual class RTCPeerConnection internal actual constructor(
     public actual fun addRemoteCandidate(candidate: RTCCandidate) {
         val handle = pc
         if (handle < 0) return
-        val toFlush: List<RTCCandidate> = synchronized(negotiationLock) {
-            if (!remoteDescriptionSet) {
-                pendingCandidates += candidate
-                null
-            } else listOf(candidate)
-        } ?: return
-        memScoped { toFlush.forEach { c -> rtcAddRemoteCandidate(handle, c.candidate.cstr.ptr, c.mid.cstr.ptr) } }
+        val toFlush: List<RTCCandidate> =
+            synchronized(negotiationLock) {
+                if (!remoteDescriptionSet) {
+                    pendingCandidates += candidate
+                    null
+                } else {
+                    listOf(candidate)
+                }
+            } ?: return
+        memScoped {
+            toFlush.forEach { (val candidate1 = candidate, val mid) ->
+                rtcAddRemoteCandidate(
+                    handle,
+                    candidate1.cstr.ptr,
+                    mid.cstr.ptr
+                )
+            }
+        }
     }
 
     private fun flushPendingCandidates() {
         val handle = pc
         if (handle < 0) return
-        val snapshot = synchronized(negotiationLock) {
-            if (pendingCandidates.isEmpty()) return
-            pendingCandidates.toList().also { pendingCandidates.clear() }
+        val snapshot =
+            synchronized(negotiationLock) {
+                if (pendingCandidates.isEmpty()) return
+                pendingCandidates.toList().also { pendingCandidates.clear() }
+            }
+        memScoped {
+            snapshot.forEach { (val candidate, val mid) ->
+                rtcAddRemoteCandidate(
+                    handle,
+                    candidate.cstr.ptr,
+                    mid.cstr.ptr
+                )
+            }
         }
-        memScoped { snapshot.forEach { c -> rtcAddRemoteCandidate(handle, c.candidate.cstr.ptr, c.mid.cstr.ptr) } }
     }
 
     public actual fun createDataChannel(
@@ -240,28 +270,32 @@ public actual class RTCPeerConnection internal actual constructor(
         val handle = pc
         check(handle >= 0) { "PeerConnection closed" }
         val effectiveProtocol = config.protocol.ifEmpty { protocol }
-        val dcId = memScoped {
-            val init = alloc<rtcDataChannelInit>()
-            memset(init.ptr, 0, sizeOf<rtcDataChannelInit>().convert())
-            init.reliability.unordered = !config.ordered
-            if (config.maxRetransmits != null) {
-                init.reliability.unreliable = true
-                init.reliability.maxRetransmits = config.maxRetransmits.toUInt()
-            } else if (config.maxPacketLifeTime != null) {
-                init.reliability.unreliable = true
-                init.reliability.maxPacketLifeTime = config.maxPacketLifeTime.toUInt()
+        val dcId =
+            memScoped {
+                val init = alloc<rtcDataChannelInit>()
+                memset(init.ptr, 0, sizeOf<rtcDataChannelInit>().convert())
+                init.reliability.unordered = !config.ordered
+                if (config.maxRetransmits != null) {
+                    init.reliability.unreliable = true
+                    init.reliability.maxRetransmits = config.maxRetransmits.toUInt()
+                } else if (config.maxPacketLifeTime != null) {
+                    init.reliability.unreliable = true
+                    init.reliability.maxPacketLifeTime = config.maxPacketLifeTime.toUInt()
+                }
+                if (effectiveProtocol.isNotEmpty()) init.protocol = effectiveProtocol.cstr.ptr
+                init.negotiated = config.negotiated
+                rtcCreateDataChannelEx(handle, label.cstr.ptr, init.ptr)
             }
-            if (effectiveProtocol.isNotEmpty()) init.protocol = effectiveProtocol.cstr.ptr
-            init.negotiated = config.negotiated
-            rtcCreateDataChannelEx(handle, label.cstr.ptr, init.ptr)
-        }
         check(dcId >= 0) { "Failed to create DataChannel" }
         val ch = RTCDataChannel(dcId, label, this, pcScope)
         putChannel(dcId, ch)
         return ch
     }
 
-    internal fun putChannel(id: Int, ch: RTCDataChannel) {
+    internal fun putChannel(
+        id: Int,
+        ch: RTCDataChannel,
+    ) {
         synchronized(channelsLock) { channels[id] = ch }
     }
 
@@ -269,16 +303,16 @@ public actual class RTCPeerConnection internal actual constructor(
         synchronized(channelsLock) { channels.remove(id) }
     }
 
-    private fun snapshotChannels(): List<RTCDataChannel> =
-        synchronized(channelsLock) { channels.values.toList() }
+    private fun snapshotChannels(): List<RTCDataChannel> = synchronized(channelsLock) { channels.values.toList() }
 
     public actual fun close() {
-        val handle = synchronized(lifecycleLock) {
-            val h = pc
-            if (h < 0) return
-            pc = -1
-            h
-        }
+        val handle =
+            synchronized(lifecycleLock) {
+                val h = pc
+                if (h < 0) return
+                pc = -1
+                h
+            }
         snapshotChannels().forEach { it.close() }
         synchronized(negotiationLock) {
             pendingCandidates.clear()
@@ -321,12 +355,22 @@ public actual class RTCPeerConnection internal actual constructor(
                         _connectionState.value = e.state
                         if (e.state == RTCConnectionState.CONNECTED ||
                             e.state == RTCConnectionState.DISCONNECTED
-                        ) querySelectedCandidatePair()?.let { _selectedCandidatePair.value = it }
+                        ) {
+                            querySelectedCandidatePair()?.let { _selectedCandidatePair.value = it }
+                        }
                     }
 
-                    is NativePeerConnectionEvent.IceState -> _iceState.value = e.state
-                    is NativePeerConnectionEvent.GatheringState -> _gatheringState.value = e.state
-                    is NativePeerConnectionEvent.IncomingChannel -> _incomingDataChannels.emit(e.channel)
+                    is NativePeerConnectionEvent.IceState -> {
+                        _iceState.value = e.state
+                    }
+
+                    is NativePeerConnectionEvent.GatheringState -> {
+                        _gatheringState.value = e.state
+                    }
+
+                    is NativePeerConnectionEvent.IncomingChannel -> {
+                        _incomingDataChannels.emit(e.channel)
+                    }
                 }
             }
         } catch (_: CancellationException) {
@@ -341,7 +385,7 @@ public actual class RTCPeerConnection internal actual constructor(
                     NativePeerConnectionEvent.LocalDescription(
                         sdp = sdp?.toKString() ?: "",
                         type = type?.toKString() ?: "",
-                    )
+                    ),
                 )
             }
 
@@ -352,7 +396,7 @@ public actual class RTCPeerConnection internal actual constructor(
                     NativePeerConnectionEvent.LocalCandidate(
                         candidate = candidate?.toKString() ?: "",
                         mid = mid?.toKString() ?: "",
-                    )
+                    ),
                 )
             }
 
@@ -360,7 +404,7 @@ public actual class RTCPeerConnection internal actual constructor(
             staticCFunction<Int, rtcState, COpaquePointer?, Unit> { _, state, user ->
                 val self = user?.asStableRef<RTCPeerConnection>()?.get() ?: return@staticCFunction
                 self.nativeEvents.trySend(
-                    NativePeerConnectionEvent.ConnectionState(state.toRTCConnectionState())
+                    NativePeerConnectionEvent.ConnectionState(state.toRTCConnectionState()),
                 )
             }
 
@@ -368,7 +412,7 @@ public actual class RTCPeerConnection internal actual constructor(
             staticCFunction<Int, rtcIceState, COpaquePointer?, Unit> { _, state, user ->
                 val self = user?.asStableRef<RTCPeerConnection>()?.get() ?: return@staticCFunction
                 self.nativeEvents.trySend(
-                    NativePeerConnectionEvent.IceState(state.toRTCIceState())
+                    NativePeerConnectionEvent.IceState(state.toRTCIceState()),
                 )
             }
 
@@ -376,18 +420,19 @@ public actual class RTCPeerConnection internal actual constructor(
             staticCFunction<Int, rtcGatheringState, COpaquePointer?, Unit> { _, state, user ->
                 val self = user?.asStableRef<RTCPeerConnection>()?.get() ?: return@staticCFunction
                 self.nativeEvents.trySend(
-                    NativePeerConnectionEvent.GatheringState(state.toRTCGatheringState())
+                    NativePeerConnectionEvent.GatheringState(state.toRTCGatheringState()),
                 )
             }
 
         private val dataChannelCallback =
             staticCFunction<Int, Int, COpaquePointer?, Unit> { _, dcId, user ->
                 val self = user?.asStableRef<RTCPeerConnection>()?.get() ?: return@staticCFunction
-                val label: String = memScoped {
-                    val buf = allocArray<ByteVar>(256)
-                    val r = rtcGetDataChannelLabel(dcId, buf, 256)
-                    if (r < 0) "unknown" else buf.toKString()
-                }
+                val label: String =
+                    memScoped {
+                        val buf = allocArray<ByteVar>(256)
+                        val r = rtcGetDataChannelLabel(dcId, buf, 256)
+                        if (r < 0) "unknown" else buf.toKString()
+                    }
                 val ch = RTCDataChannel(dcId, label, self, self.pcScope)
                 self.putChannel(dcId, ch)
                 self.nativeEvents.trySend(NativePeerConnectionEvent.IncomingChannel(ch))

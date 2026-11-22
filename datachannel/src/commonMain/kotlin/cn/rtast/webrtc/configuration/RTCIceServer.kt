@@ -4,7 +4,6 @@
  * Date: 2026-10-03
  */
 
-
 package cn.rtast.webrtc.configuration
 
 public data class RTCIceServer(
@@ -39,13 +38,15 @@ public data class RTCIceServer(
 
     public companion object {
         private const val HEX = "0123456789ABCDEF"
+
         private fun percentEncode(s: String): String {
             val sb = StringBuilder()
             for (b in s.encodeToByteArray()) {
                 val v = b.toInt() and 0xFF
                 val c = v.toChar()
-                if ((c in 'a'..'z') || (c in 'A'..'Z') || (c in '0'..'9') || c in "-_.~") sb.append(c)
-                else {
+                if ((c in 'a'..'z') || (c in 'A'..'Z') || (c in '0'..'9') || c in "-_.~") {
+                    sb.append(c)
+                } else {
                     sb.append('%')
                     sb.append(HEX[v shr 4])
                     sb.append(HEX[v and 0x0F])

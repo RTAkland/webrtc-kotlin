@@ -4,7 +4,6 @@
  * Date: 2026-09-29
  */
 
-
 package cn.rtast.webrtc.configuration
 
 /**
@@ -21,5 +20,5 @@ public enum class RTCIceTransportPolicy {
     /**
      * Disable direct/p2p connections and force relaying
      */
-    RELAY
+    RELAY,
 }

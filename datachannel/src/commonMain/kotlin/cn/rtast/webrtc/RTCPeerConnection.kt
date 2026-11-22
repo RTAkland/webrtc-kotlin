@@ -18,7 +18,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
 public expect class RTCPeerConnection internal constructor(
-    parentScope: CoroutineScope, iceConfig: RTCConfiguration,
+    parentScope: CoroutineScope,
+    iceConfig: RTCConfiguration,
 ) {
     public constructor(scope: CoroutineScope)
 
@@ -36,11 +37,24 @@ public expect class RTCPeerConnection internal constructor(
     public val coroutineScope: CoroutineScope
 
     public fun selectedIceTransportType(): RTCIceTransportType
+
     public fun createOffer()
+
     public fun createAnswer()
-    public fun setRemoteDescription(sdp: String, type: String)
+
+    public fun setRemoteDescription(
+        sdp: String,
+        type: String,
+    )
+
     public fun addRemoteCandidate(candidate: RTCCandidate)
-    public fun createDataChannel(label: String, protocol: String, config: RTCDataChannelConfig): RTCDataChannel
+
+    public fun createDataChannel(
+        label: String,
+        protocol: String,
+        config: RTCDataChannelConfig,
+    ): RTCDataChannel
+
     public fun close()
 }
 

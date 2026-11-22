@@ -4,9 +4,10 @@
  * Date: 2026-10-01
  */
 
-
 package cn.rtast.webrtc.state
 
 public enum class RTCGatheringState {
-    NEW, IN_PROGRESS, COMPLETE,
+    NEW,
+    IN_PROGRESS,
+    COMPLETE,
 }

@@ -6,6 +6,8 @@
 
 @file:OptIn(ExperimentalForeignApi::class)
 
+@file:Suppress("ktlint:standard:no-wildcard-imports")
+
 package cn.rtast.webrtc
 
 import cn.rtast.webrtc.internal.NativeDatachannelEvent
@@ -33,7 +35,11 @@ public actual class RTCDataChannel internal constructor(
     private val _state = MutableStateFlow(RTCDataChannelState.Connecting)
     private val _bufferedAmount = MutableStateFlow(0L)
     private val _bufferedAmountLow = Channel<Unit>(Channel.CONFLATED)
+
+    @Suppress("ktlint:standard:backing-property-naming")
     private val _textMessages = MutableSharedFlow<String>(0, 64, BufferOverflow.SUSPEND)
+
+    @Suppress("ktlint:standard:backing-property-naming")
     private val _binaryMessages = MutableSharedFlow<ByteArray>(0, 64, BufferOverflow.SUSPEND)
 
     public actual val state: StateFlow<RTCDataChannelState> = _state.asStateFlow()
@@ -46,11 +52,16 @@ public actual class RTCDataChannel internal constructor(
     private val selfRef = StableRef.create(this)
 
     public actual val protocol: String
-        get() = if (isClosed) "" else memScoped {
-            val buf = allocArray<ByteVar>(256)
-            val r = rtcGetDataChannelProtocol(dc, buf, 256)
-            if (r < 0) "" else buf.toKString()
-        }
+        get() =
+            if (isClosed) {
+                ""
+            } else {
+                memScoped {
+                    val buf = allocArray<ByteVar>(256)
+                    val r = rtcGetDataChannelProtocol(dc, buf, 256)
+                    if (r < 0) "" else buf.toKString()
+                }
+            }
 
     public actual val isOpen: Boolean get() = _state.value == RTCDataChannelState.Open
     public actual val isClosed: Boolean get() = _state.value == RTCDataChannelState.Closed
@@ -65,11 +76,12 @@ public actual class RTCDataChannel internal constructor(
         rtcSetBufferedAmountLowCallback(dc, bufferedAmountLowCallback)
         rtcSetErrorCallback(dc, errorCallback)
 
-        _state.value = when {
-            rtcIsClosed(dc) -> RTCDataChannelState.Closed
-            rtcIsOpen(dc) -> RTCDataChannelState.Open
-            else -> RTCDataChannelState.Connecting
-        }
+        _state.value =
+            when {
+                rtcIsClosed(dc) -> RTCDataChannelState.Closed
+                rtcIsOpen(dc) -> RTCDataChannelState.Open
+                else -> RTCDataChannelState.Connecting
+            }
         _bufferedAmount.value = rtcGetBufferedAmount(dc).toLong()
         scope.launch { consumeNativeEvents() }
     }
@@ -107,7 +119,9 @@ public actual class RTCDataChannel internal constructor(
                         refreshBufferedAmount()
                     }
 
-                    is NativeDatachannelEvent.Error -> handleError(event.message)
+                    is NativeDatachannelEvent.Error -> {
+                        handleError(event.message)
+                    }
                 }
             }
         } finally {
@@ -129,10 +143,16 @@ public actual class RTCDataChannel internal constructor(
         rtcClose(dc)
     }
 
-    private fun reportError(message: String, fatal: Boolean) {
+    private fun reportError(
+        message: String,
+        fatal: Boolean,
+    ) {
         val handler = RTCPeerConnectionFactory.errorHandler
-        if (handler != null) handler(RTCException(message, fatal))
-        else fprintf(stderr, "[kotlin-webrtc] datachannel error: %s\n", message)
+        if (handler != null) {
+            handler(RTCException(message, fatal))
+        } else {
+            fprintf(stderr, "[kotlin-webrtc] datachannel error: %s\n", message)
+        }
     }
 
     private fun doCleanup() {
@@ -179,15 +199,17 @@ public actual class RTCDataChannel internal constructor(
     }
 
     public companion object {
-        private val openCallback = staticCFunction<Int, COpaquePointer?, Unit> { _, user ->
-            val self = user?.asStableRef<RTCDataChannel>()?.get() ?: return@staticCFunction
-            self.nativeEvents.trySend(NativeDatachannelEvent.Open)
-        }
+        private val openCallback =
+            staticCFunction<Int, COpaquePointer?, Unit> { _, user ->
+                val self = user?.asStableRef<RTCDataChannel>()?.get() ?: return@staticCFunction
+                self.nativeEvents.trySend(NativeDatachannelEvent.Open)
+            }
 
-        private val closeCallback = staticCFunction<Int, COpaquePointer?, Unit> { _, user ->
-            val self = user?.asStableRef<RTCDataChannel>()?.get() ?: return@staticCFunction
-            self.nativeEvents.trySend(NativeDatachannelEvent.Closed)
-        }
+        private val closeCallback =
+            staticCFunction<Int, COpaquePointer?, Unit> { _, user ->
+                val self = user?.asStableRef<RTCDataChannel>()?.get() ?: return@staticCFunction
+                self.nativeEvents.trySend(NativeDatachannelEvent.Closed)
+            }
 
         private val messageCallback =
             staticCFunction<Int, CPointer<ByteVar>?, Int, COpaquePointer?, Unit> { _, msg, size, user ->
@@ -212,7 +234,7 @@ public actual class RTCDataChannel internal constructor(
             staticCFunction<Int, CPointer<ByteVar>?, COpaquePointer?, Unit> { _, error, user ->
                 val self = user?.asStableRef<RTCDataChannel>()?.get() ?: return@staticCFunction
                 self.nativeEvents.trySend(
-                    NativeDatachannelEvent.Error(error?.toKString() ?: "unknown error")
+                    NativeDatachannelEvent.Error(error?.toKString() ?: "unknown error"),
                 )
             }
     }

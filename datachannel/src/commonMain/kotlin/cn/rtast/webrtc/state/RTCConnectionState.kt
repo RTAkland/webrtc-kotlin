@@ -4,9 +4,13 @@
  * Date: 2026-09-28
  */
 
-
 package cn.rtast.webrtc.state
 
 public enum class RTCConnectionState {
-    NEW, CONNECTING, CONNECTED, DISCONNECTED, FAILED, CLOSED,
+    NEW,
+    CONNECTING,
+    CONNECTED,
+    DISCONNECTED,
+    FAILED,
+    CLOSED,
 }

@@ -6,6 +6,8 @@
 
 @file:OptIn(ExperimentalForeignApi::class)
 
+@file:Suppress("ktlint:standard:no-wildcard-imports")
+
 package cn.rtast.webrtc
 
 import cn.rtast.webrtc.configuration.*
@@ -16,7 +18,9 @@ import libdatachannel.rtcCleanup
 import libdatachannel.rtcInitLogger
 import libdatachannel.rtcPreload
 
-public actual class RTCPeerConnectionFactory actual constructor(logLevel: RTCLogLevel) {
+public actual class RTCPeerConnectionFactory actual constructor(
+    logLevel: RTCLogLevel,
+) {
     public actual fun createPeerConnection(
         scope: CoroutineScope,
         config: RTCConfiguration,

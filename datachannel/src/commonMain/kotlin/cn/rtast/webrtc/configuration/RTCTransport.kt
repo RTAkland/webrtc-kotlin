@@ -4,7 +4,6 @@
  * Date: 2026-09-29
  */
 
-
 package cn.rtast.webrtc.configuration
 
 /**
@@ -13,7 +12,9 @@ package cn.rtast.webrtc.configuration
  *
  * @property value The string value used in the TURN URL query parameter
  */
-public enum class RTCTransport(public val value: String) {
+public enum class RTCTransport(
+    public val value: String,
+) {
     UDP("udp"),
     TCP("tcp"),
 }
