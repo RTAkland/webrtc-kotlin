@@ -49,6 +49,11 @@ The build always uses `NO_WEBSOCKET=ON` and `NO_MEDIA=ON`, and reuses the fixed 
 `LICENSE`/`BUILDING.md` stay tracked, and the Windows `libthrow_bad_array_new_length.a`
 workaround remains tracked.
 
+Release publishing builds the Linux/MinGW libraries on Ubuntu and the macOS library on
+macOS, then runs cinterop and `publishAllPublicationsToMavenRepository` on macOS.
+Kotlin/Native requires a macOS host to produce Apple klibs with cinterop dependencies,
+so the publish job cannot run on Linux.
+
 # Open Source
 
 `webrtc-kotlin` is open source under [Apache-2.0](LICENSE)

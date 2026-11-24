@@ -1,4 +1,4 @@
-name: Publish Release on macOS
+name: Publish Release
 
 on:
   push:
@@ -7,7 +7,80 @@ on:
   workflow_dispatch:
 
 jobs:
+  native-libs:
+    name: Native libs (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            targets: linuxX64,linuxArm64,mingwX64
+          - os: macos-latest
+            targets: macosArm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install Linux cross toolchains
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential cmake \
+            g++-aarch64-linux-gnu \
+            gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Download Kotlin/Native dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          ./gradlew \
+            :datachannel:commonizeNativeDistribution \
+            :datachannel:downloadKotlinNativeDistribution \
+            --no-daemon
+
+      - name: Build native libraries
+        run: |
+          ./gradlew :libdatachannel:updateNativeLibs \
+            -PlibdatachannelTargets=${{ matrix.targets }} \
+            --stacktrace \
+            --no-daemon
+
+      - name: Stage native libraries
+        run: |
+          mkdir -p native-libs/libdatachannel/src/cinterop
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            cp -R libdatachannel/src/cinterop/libs native-libs/libdatachannel/src/cinterop/
+            cp -R libdatachannel/src/cinterop/include native-libs/libdatachannel/src/cinterop/
+          else
+            mkdir -p native-libs/libdatachannel/src/cinterop/libs
+            cp -R libdatachannel/src/cinterop/libs/macosArm64 native-libs/libdatachannel/src/cinterop/libs/
+          fi
+
+      - name: Upload native libraries
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-libs-${{ matrix.os }}
+          path: native-libs
+          if-no-files-found: error
+
   publish:
+    name: Publish
+    needs: native-libs
     runs-on: macos-latest
 
     permissions:
@@ -28,6 +101,26 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Download native libraries
+        uses: actions/download-artifact@v4
+        with:
+          pattern: native-libs-*
+          path: .
+          merge-multiple: true
+
+      - name: Verify native libraries
+        run: |
+          for target in linuxX64 linuxArm64 mingwX64 macosArm64; do
+            for lib in libdatachannel.a libjuice.a libusrsctp.a; do
+              test -f "libdatachannel/src/cinterop/libs/$target/$lib" || {
+                echo "missing libdatachannel/src/cinterop/libs/$target/$lib"
+                exit 1
+              }
+            done
+          done
+          test -f libdatachannel/src/cinterop/include/libdatachannel/include/rtc/rtc.h
+          test -f libdatachannel/src/cinterop/include/libdatachannel/VERSION
+
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
@@ -36,6 +129,7 @@ jobs:
           PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
         run: |
           ./gradlew publishAllPublicationsToMavenRepository \
+            -PlibdatachannelTargets=linuxX64,linuxArm64,mingwX64,macosArm64 \
             --stacktrace \
             --no-daemon
 
