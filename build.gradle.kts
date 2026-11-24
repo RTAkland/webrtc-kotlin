@@ -31,7 +31,7 @@ subprojects {
         }
         publications.withType<MavenPublication> {
             pom {
-                name = "webrtc-kotlin"
+                name = project.name
                 description = "Kotlin Native WebRTC libdatachannel wrapper"
                 url.set("https://repo.rtast.cn/RTAkland/webrtc-kotlin")
                 licenses {

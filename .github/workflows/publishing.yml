@@ -49,8 +49,8 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           ./gradlew \
-            :datachannel:commonizeNativeDistribution \
-            :datachannel:downloadKotlinNativeDistribution \
+            :webrtc-kotlin-core:commonizeNativeDistribution \
+            :webrtc-kotlin-core:downloadKotlinNativeDistribution \
             --no-daemon
 
       - name: Build native libraries

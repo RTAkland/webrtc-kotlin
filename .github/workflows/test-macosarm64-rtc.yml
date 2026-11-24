@@ -1,4 +1,4 @@
-name: Run datachannel macOS ARM64 Test
+name: Run webrtc-kotlin-core macOS ARM64 Test
 
 on:
   workflow_dispatch:
@@ -27,8 +27,7 @@ jobs:
 
       - name: Run macosArm64 test
         run: |
-          ./gradlew :datachannel:cleanMacosArm64Test :datachannel:macosArm64Test --stacktrace
-        continue-on-error: true
+          ./gradlew :webrtc-kotlin-core:cleanMacosArm64Test :webrtc-kotlin-core:macosArm64Test --stacktrace
 
       - name: Upload test reports
         if: always()

@@ -8,6 +8,8 @@ pluginManagement {
 
 rootProject.name = "webrtc-kotlin"
 
+// The directory is core/; the Gradle project path and Maven artifact id are
+// webrtc-kotlin-core.
 include(":core")
 project(":core").name = "webrtc-kotlin-core"
 include(":libdatachannel")
