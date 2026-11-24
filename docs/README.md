@@ -17,7 +17,7 @@ repositories {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.rtast.webrtc:webrtc-kotlin-core:0.2.1")
+            implementation("cn.rtast.webrtc:webrtc-kotlin-core:0.2.2")
             // Get latest version https://repo.rtast.cn/packages/-/cn.rtast.webrtc:webrtc-kotlin-core
         }
     }
