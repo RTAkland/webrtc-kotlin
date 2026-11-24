@@ -8,6 +8,7 @@ pluginManagement {
 
 rootProject.name = "webrtc-kotlin"
 
-include(":datachannel")
+include(":core")
+project(":core").name = "webrtc-kotlin-core"
 include(":libdatachannel")
 include(":mbedtls")

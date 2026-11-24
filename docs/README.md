@@ -17,8 +17,8 @@ repositories {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.rtast.webrtc:datachannel:0.1.5")
-            // Get latest version https://repo.rtast.cn/packages/-/cn.rtast.webrtc:datachannel
+            implementation("cn.rtast.webrtc:webrtc-kotlin-core:0.2.1")
+            // Get latest version https://repo.rtast.cn/packages/-/cn.rtast.webrtc:webrtc-kotlin-core
         }
     }
 }
