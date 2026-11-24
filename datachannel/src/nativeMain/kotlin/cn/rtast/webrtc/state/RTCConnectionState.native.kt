@@ -4,12 +4,10 @@
  * Date: 2026-10-02
  */
 
-@file:OptIn(ExperimentalForeignApi::class)
 @file:Suppress("ktlint:standard:no-wildcard-imports", "unused")
 
 package cn.rtast.webrtc.state
 
-import kotlinx.cinterop.ExperimentalForeignApi
 import libdatachannel.*
 
 internal fun RTCConnectionState.toNative(): rtcState =

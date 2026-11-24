@@ -4,8 +4,6 @@
  * Date: 2026-10-02
  */
 
-@file:OptIn(ExperimentalForeignApi::class)
-
 @file:Suppress("ktlint:standard:no-wildcard-imports")
 
 package cn.rtast.webrtc
@@ -13,7 +11,6 @@ package cn.rtast.webrtc
 import cn.rtast.webrtc.configuration.*
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
-import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CoroutineScope
 import libdatachannel.LIBDATACHANNEL_VERSION
 import libdatachannel.rtcCleanup

@@ -86,18 +86,22 @@ public class RTCConfigurationBuilder {
     public var certificateType: RTCCertificateType = RTCCertificateType.DEFAULT
 
     /**
-     * STUN server
+     * STUN server.
+     *
+     * [host] may be a bare host name or include a `stun:`/`stuns:` prefix.
      */
     public fun stun(
         host: String,
         port: Int = 3478,
         transport: RTCTransport = RTCTransport.UDP,
     ) {
-        iceServers += RTCIceServer("stun:$host:$port?transport=${transport.value}")
+        iceServers += RTCIceServer("stun:${normalizeIceHost(host)}:$port?transport=${transport.value}")
     }
 
     /**
-     * TURN server
+     * TURN server.
+     *
+     * [host] may be a bare host name or include a `turn:`/`turns:` prefix.
      */
     public fun turn(
         host: String,
@@ -107,8 +111,20 @@ public class RTCConfigurationBuilder {
         transport: RTCTransport = RTCTransport.UDP,
         tls: Boolean = false,
     ) {
-        val scheme = if (tls) "turns" else "turn"
-        iceServers += RTCIceServer("$scheme:$host:$port?transport=${transport.value}", username, password)
+        val scheme = if (tls || host.startsWith("turns:", ignoreCase = true)) "turns" else "turn"
+        iceServers +=
+            RTCIceServer(
+                "$scheme:${normalizeIceHost(host)}:$port?transport=${transport.value}",
+                username,
+                password,
+            )
+    }
+
+    private fun normalizeIceHost(value: String): String {
+        for (prefix in listOf("stuns:", "stun:", "turns:", "turn:")) {
+            if (value.startsWith(prefix, ignoreCase = true)) return value.substring(prefix.length)
+        }
+        return value
     }
 
     /**

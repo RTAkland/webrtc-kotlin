@@ -4,8 +4,6 @@
  * Date: 2026-10-02
  */
 
-@file:OptIn(ExperimentalForeignApi::class)
-
 @file:Suppress("ktlint:standard:no-wildcard-imports")
 
 package cn.rtast.webrtc

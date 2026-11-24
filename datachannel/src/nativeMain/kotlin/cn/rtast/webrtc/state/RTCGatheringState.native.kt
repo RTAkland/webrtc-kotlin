@@ -4,12 +4,10 @@
  * Date: 2026-10-02
  */
 
-@file:OptIn(ExperimentalForeignApi::class)
 @file:Suppress("unused")
 
 package cn.rtast.webrtc.state
 
-import kotlinx.cinterop.ExperimentalForeignApi
 import libdatachannel.RTC_GATHERING_COMPLETE
 import libdatachannel.RTC_GATHERING_INPROGRESS
 import libdatachannel.RTC_GATHERING_NEW

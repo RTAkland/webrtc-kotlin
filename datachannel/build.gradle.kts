@@ -7,6 +7,10 @@ kotlin {
     explicitApi()
     withSourcesJar()
 
+    compilerOptions {
+        optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
+    }
+
     sourceSets {
         commonMain.dependencies {
             api(libs.coroutines)
@@ -17,7 +21,9 @@ kotlin {
             implementation(project(":libdatachannel"))
         }
 
-        commonTest.dependencies {}
+        commonTest.dependencies {
+            implementation("cn.rtast.crypto-kotlin:crypto:0.1.1")
+        }
     }
 
     compilerOptions.freeCompilerArgs.addAll("-Xexpect-actual-classes")

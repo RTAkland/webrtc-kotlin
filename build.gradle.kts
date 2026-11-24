@@ -9,6 +9,7 @@ allprojects {
 
     repositories {
         mavenCentral()
+        maven("https://repo.rtast.cn/packages")
     }
 }
 

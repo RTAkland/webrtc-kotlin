@@ -9,6 +9,10 @@ kotlin {
     explicitApi()
     withSourcesJar()
 
+    compilerOptions {
+        optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
+    }
+
     targets.withType<KotlinNativeTarget>().configureEach {
         compilations["main"].cinterops {
             create("mbedtls") {

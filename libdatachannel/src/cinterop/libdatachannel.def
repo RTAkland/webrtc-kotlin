@@ -1,5 +1,9 @@
 package = libdatachannel
 headers = rtc/rtc.h
+# RTC_STATIC is required since libdatachannel 0.24.7: without it the Windows
+# header expands RTC_C_EXPORT to __declspec(dllimport), which breaks linking
+# against the static .a files.
+compilerOpts = -DRTC_STATIC -DRTC_ENABLE_WEBSOCKET=0 -DRTC_ENABLE_MEDIA=0
 staticLibraries = libdatachannel.a libjuice.a libusrsctp.a
 linkerOpts.linux = -lpthread -ldl -lm -lstdc++ --warn-unresolved-symbols
-linkerOpts.mingw = -Wl,-Bstatic -lstdc++ -lgcc -lwinpthread -Wl,-Bdynamic -lws2_32 -lbcrypt -liphlpapi
+linkerOpts.mingw = -lws2_32 -liphlpapi

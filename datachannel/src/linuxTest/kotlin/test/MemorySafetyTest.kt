@@ -4,7 +4,7 @@
  * Date: 2026-11-22
  */
 
-@file:OptIn(ExperimentalForeignApi::class, NativeRuntimeApi::class)
+@file:OptIn(NativeRuntimeApi::class)
 
 @file:Suppress("ktlint:standard:no-wildcard-imports")
 
@@ -16,7 +16,10 @@ import cn.rtast.webrtc.configuration.RTCLogLevel
 import cn.rtast.webrtc.configuration.rtcConfiguration
 import cn.rtast.webrtc.configuration.rtcDataChannelConfig
 import cn.rtast.webrtc.state.RTCDataChannelState
-import kotlinx.cinterop.*
+import kotlinx.cinterop.ByteVar
+import kotlinx.cinterop.allocArray
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.toKString
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first

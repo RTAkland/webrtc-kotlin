@@ -27,10 +27,6 @@ class TestRTCNoACK {
     private val testTurnUser = "053ab4513c7fbb2523e627d4"
     private val testTurnPass = "P2bVZlYXTzmzsu4V"
 
-    private val testLANTurnHost = "192.168.10.200"
-    private val testLANTurnUser = "testuser"
-    private val testLANTurnPass = "testpass"
-
     private val factory = RTCPeerConnectionFactory(RTCLogLevel.ERROR)
 
     init {
