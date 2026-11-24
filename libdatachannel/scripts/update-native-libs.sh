@@ -553,6 +553,9 @@ done
 # ---------------------------------------------------------------------------
 
 log "Installing headers for libdatachannel $VERSION"
+# Git does not track the generated include/ directory, so create its parent
+# before copying on a clean checkout.
+run mkdir -p "$INCLUDE_DEST/include"
 run rm -rf "$INCLUDE_DEST/include/rtc"
 run cp -R "$SRC/include/rtc" "$INCLUDE_DEST/include/rtc"
 run cp "$SRC/LICENSE" "$INCLUDE_DEST/LICENSE"
